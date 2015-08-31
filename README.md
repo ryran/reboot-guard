@@ -1,5 +1,5 @@
 # reboot-guard
-A python app that blocks systemd-initiated poweroff/reboot/halt until configurable condition checks pass
+Block systemd-initiated poweroff/reboot/halt until configurable condition checks pass
 
 
 ### Requirements
