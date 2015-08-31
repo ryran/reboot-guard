@@ -1,0 +1,17 @@
+[Unit]
+Description=Reboot Guard
+
+[Service]
+# The following is an EXAMPLE only; modify it to suit your needs
+# Keep in mind:
+#   * --loglevel is not required (default: warning)
+#   * --dont-exit is not required (default: rguard exits when conditions pass)
+#   * Options can be used more than once
+#   * Any arguments with spaces should be double- or single-quoted
+#   * If passing a compound command (w/pipes) to --run, prefix with "@"
+#   * To invert the interpretation of --run, prefix with "!"
+#   * See rguard --help for more detail
+ExecStart=/usr/sbin/rguard --loglevel warning --dont-exit --unit atd -u crond --cmd mysqld --forbid-file '/run/some lock file' --require-file /root/.allow --run "ping -c2 -w1 -W1 10.0.0.1" --run "!findmnt /mountpoint" --run "!@lsof -i:ssh | grep -q ESTABLISHED"
+
+[Install]
+WantedBy=multi-user.target
