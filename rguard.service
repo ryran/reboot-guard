@@ -2,16 +2,23 @@
 Description=Reboot Guard
 
 [Service]
-# The following is an EXAMPLE only; modify it to suit your needs
+# Optionally change the following to "no" to prevent systemd from killing rguard
+SendSIGKILL=yes
+TimeoutStopSec=5
+# There should be only ONE uncommented ExecStart line
+ExecStart=/usr/sbin/rguard --interval 30 --require-file /run/.allow-shutdown
+#ExecStart=/usr/sbin/rguard --ignore-signals --unit atd -u crond --cmd mysqld --cmd gnome-session --forbid-file '/some/lock file' --run 'ping -c2 -w1 -W1 www.redhat.com' --run '!findmnt /mountpoint' --run '!@lsof -i:ssh | grep -q ESTABLISHED'
+
+# The above ExecStart lines are EXAMPLES only; modify to suit your needs
 # Keep in mind:
-#   * --loglevel is not required (default: warning)
-#   * --dont-exit is not required (default: rguard exits when conditions pass)
-#   * Options can be used more than once
+#   * --loglevel is optional (defaults to warning; use info or debug to see more detail)
+#   * --ignore-signals is optional (without it, `systemctl stop rguard` will remove the blocks)
+#   * --interval is optional (defaults to 60 secs; useful to bump up when testing)
+#   * Condition-checking options can be used more than once
 #   * Any arguments with spaces should be double- or single-quoted
 #   * If passing a compound command (w/pipes) to --run, prefix with "@"
 #   * To invert the interpretation of --run, prefix with "!"
 #   * See rguard --help for more detail
-ExecStart=/usr/sbin/rguard --loglevel warning --dont-exit --unit atd -u crond --cmd mysqld --forbid-file '/run/some lock file' --require-file /root/.allow --run "ping -c2 -w1 -W1 10.0.0.1" --run "!findmnt /mountpoint" --run "!@lsof -i:ssh | grep -q ESTABLISHED"
 
 [Install]
 WantedBy=multi-user.target

@@ -11,14 +11,20 @@ A python app that blocks systemd-initiated poweroff/reboot/halt until configurab
 
 ### Interactive walk-thru: ONE-SHOT
 
-1. Execute `rguard` without any condition checks to confirm it really can block shutdown.
+1. Download and execute `rguard` without any condition checks to confirm it really can block shutdown.
 
     ```
-    [root]# cp rguard /usr/sbin
+    [root]# cd /usr/sbin
+    [root]# curl -kO https://raw.githubusercontent.com/ryran/reboot-guard/master/rguard
+      % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                     Dload  Upload   Total   Spent    Left  Speed
+    100 16575  100 16575    0     0  54536      0 --:--:-- --:--:-- --:--:-- 54702
+    [root]# ll rguard
+    -rwxr-xr-x. 1 root root 16575 Sep  1 02:46 rguard
     [root]# rguard -1
-    WARNING: Blocked poweroff.target
-    WARNING: Blocked reboot.target
-    WARNING: Blocked halt.target
+    WARNING: ☹  Blocked poweroff.target
+    WARNING: ☹  Blocked reboot.target
+    WARNING: ☹  Blocked halt.target
     WARNING: Exiting due to -1 or -0 option
     [root]# 
     ```
@@ -41,9 +47,9 @@ A python app that blocks systemd-initiated poweroff/reboot/halt until configurab
 
     ```
     [root]# rguard -0
-    WARNING: Unblocked poweroff.target
-    WARNING: Unblocked reboot.target
-    WARNING: Unblocked halt.target
+    WARNING: ☻  Unblocked poweroff.target
+    WARNING: ☻  Unblocked reboot.target
+    WARNING: ☻  Unblocked halt.target
     WARNING: Exiting due to -1 or -0 option
     [root]# 
     ```
@@ -53,32 +59,37 @@ A python app that blocks systemd-initiated poweroff/reboot/halt until configurab
 1. Execute `rguard` with a tiny sleep-interval and 2 simple checks.
 
     ```
-    [root]# rguard --sleep-interval 5 --unit crond --require-file /root/require &
-    [2] 14043
-    WARNING: Blocked poweroff.target
-    WARNING: Blocked reboot.target
-    WARNING: Blocked halt.target
+    [root]# rguard --interval 15 --unit atd --require-file /run/.require &
+    [1] 23317
+    WARNING: ☹  Failed a condition-check
+    WARNING: ☹  Blocked poweroff.target
+    WARNING: ☹  Blocked reboot.target
+    WARNING: ☹  Blocked halt.target
+    [root]# 
     ```
 
 1. The conditions we set meant shutdown will be blocked while crond is active and while `/root/require` does not exist, so fix that and `rguard` will immediately unblock shutdown and exit.
 
     ```
-    [root]# systemctl stop crond
-    [root]# touch /root/require
-    [root]# WARNING: Unblocked poweroff.target
-    WARNING: Unblocked reboot.target
-    WARNING: Unblocked halt.target
-    WARNING: Exiting due to passed condition checks
-
-    [2]+  Done                    rguard --sleep-interval 5 --unit crond --require-file /root/require
-    [root]#
+    [root]# systemctl is-active atd
+    active
+    [root]# systemctl stop atd
+    [root]# touch /run/.require
+    WARNING: ☻  Passed all condition-checks
+    WARNING: ☻  Unblocked poweroff.target
+    WARNING: ☻  Unblocked reboot.target
+    WARNING: ☻  Unblocked halt.target
+    [root]# fg
+    rguard --interval 15 --unit atd --require-file /run/.require
+    ^C
+    WARNING: Gracefully exiting due to receipt of SIG 17
     ```
 
 
 ### Instructions
 
 1. Save `rguard` to `/usr/sbin/`
-1. Ssee help page and examples in `rguard.service`
+1. See help page and examples in `rguard.service`
 1. Play with the options until you get them how you want them
 1. Modify `rguard.service` with your options and save it to `/etc/systemd/system/`
 1. Run: `systemctl daemon-reload; systemctl enable rguard; systemctl start rguard`
@@ -91,7 +102,8 @@ A python app that blocks systemd-initiated poweroff/reboot/halt until configurab
 
 ```
 usage: rguard [-1 | -0] [-f FILE] [-F FILE] [-u UNIT] [-c CMD] [-a ARGS]
-              [-r COMMAND] [-h] [-v {debug,info,warning,error}] [-i SEC] [-x]
+              [-r COMMAND] [-h] [-i SEC] [-n] [-x]
+              [-v {debug,info,warning,error}] [-t]
 
 Block systemd-initiated shutdown until configurable condition checks pass
 
@@ -123,13 +135,16 @@ CONFIGURE CONDITIONS:
 OPTIONS:
 
   -h, --help            Show this help message and exit
+  -i, --interval SEC    Modify the sleep interval between condition checks
+                        (default: 60 seconds)
+  -n, --ignore-signals  Ignore the most common signals (HUP, INT, QUIT, USR1,
+                        USR2, TERM), in which case a graceful exit requires
+                        the next option or else SIGKILL
+  -x, --exit-on-pass    Exit (and remove reboot-guard) the first time all
+                        condition checks pass
   -v, --loglevel {debug,info,warning,error}
                         Specify minimum message type to print (default:
                         warning)
-  -i, --sleep-interval SEC
-                        Modify the sleep interval between condition checks
-                        (default: 60)
-  -x, --dont-exit       Stay resident after all condition checks; re-enable
-                        the blocks if condition checks fail (without this
-                        option: rguard exits as soon as condition checks pass)
+  -t, --timestamps      Enable timestamps in message output (not necessary if
+                        running as systemd service)
 ```
