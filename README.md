@@ -68,7 +68,7 @@ Block systemd-initiated poweroff/reboot/halt until configurable condition checks
     [root]# 
     ```
 
-1. The conditions we set meant shutdown will be blocked while crond is active and while `/root/require` does not exist, so fix that and `rguard` will immediately unblock shutdown and exit.
+1. The conditions we set meant shutdown will be blocked while atd is active and while `/run/.require` does not exist, so fix that and `rguard` will immediately unblock shutdown.
 
     ```
     [root]# systemctl is-active atd
