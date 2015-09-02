@@ -2,23 +2,30 @@
 Description=Reboot Guard
 
 [Service]
-# Optionally change the following to "no" to prevent systemd from killing rguard
-SendSIGKILL=yes
-TimeoutStopSec=5
-# There should be only ONE uncommented ExecStart line
-ExecStart=/usr/sbin/rguard --interval 30 --require-file /run/.allow-shutdown
-#ExecStart=/usr/sbin/rguard --ignore-signals --unit atd -u crond --cmd mysqld --cmd gnome-session --forbid-file '/some/lock file' --run 'ping -c2 -w1 -W1 www.redhat.com' --run '!findmnt /mountpoint' --run '!@lsof -i:ssh | grep -q ESTABLISHED'
-
-# The above ExecStart lines are EXAMPLES only; modify to suit your needs
+# NOTE: The following ExecStart lines are EXAMPLES only; modify to suit your needs
+#       There should be only ONE uncommented ExecStart line
+#
+##ExecStart=/usr/sbin/rguard --interval 30 --require-file /run/.allow-shutdown
+##ExecStart=/usr/sbin/rguard --ignore-signals --unit atd -u crond --cmd mysqld
+##ExecStart=/usr/sbin/rguard --cmd gnome-session --forbid-file '/some/lock file'
+##ExecStart=/usr/sbin/rguard --run 'ping -c2 -w1 -W1 www.redhat.com'
+##ExecStart=/usr/sbin/rguard --loglevel info --run '!findmnt /mountpoint'
+##ExecStart=/usr/sbin/rguard --loglevel debug --run '!@lsof -i:ssh | grep -q ESTABLISHED'
+#
 # Keep in mind:
 #   * --loglevel is optional (defaults to warning; use info or debug to see more detail)
-#   * --ignore-signals is optional (without it, `systemctl stop rguard` will remove the blocks)
+#   * --ignore-signals is optional (without it, `systemctl stop rguard` or `killall rguard` will remove the blocks)
 #   * --interval is optional (defaults to 60 secs; useful to bump up when testing)
 #   * Condition-checking options can be used more than once
 #   * Any arguments with spaces should be double- or single-quoted
-#   * If passing a compound command (w/pipes) to --run, prefix with "@"
+#   * If passing a shell command to --run, prefix with "@"
 #   * To invert the interpretation of --run, prefix with "!"
+#   * If using both "@" and "!", order should be "!@"
 #   * See rguard --help for more detail
+#
+TimeoutStopSec=5
+# Optionally uncomment the following line to prevent systemd from killing rguard
+##SendSIGKILL=no
 
 [Install]
 WantedBy=multi-user.target

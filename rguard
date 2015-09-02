@@ -24,9 +24,10 @@ from sys import stdin, stderr, exit
 from shutil import rmtree
 from stat import S_IWRITE
 
+prog = 'rguard'
 vers = {}
-vers['version'] = '0.2.1'
-vers['date'] = '2015/09/01'
+vers['version'] = '0.2.2'
+vers['date'] = '2015/09/02'
 
 
 def ret(returnCode):
@@ -323,13 +324,51 @@ class CustomFormatter(argparse.RawDescriptionHelpFormatter):
             return ', '.join(parts)
 
 
+helpExamples= """EXAMPLES:
+  As mentioned above, all of the condition-checking options can be used
+  multiple times. All specified checks must pass to allow shutdown.
+
+  {0} --forbid-file /shutdown/prevented/if/this/file/exists
+
+  {0} --require-file /shutdown/prevented/until/this/file/exists
+
+  {0} --cmd some-cmd-name-which-when-running-prevents-shutdown
+           * e.g., 'bash' or 'firefox'
+
+  {0} --args 'syndaemon -i 1.0 -t -K -R'
+           * Prevent shutdown if this exact cmd + args are found running
+
+  {0} --run 'ping -c2 -w1 -W1 10.0.0.1'
+           * Allow shutdown only if single command (ping in this case) succeeds
+
+  {0} --run '!ping -c2 -w1 -W1 10.0.0.1'
+           * Allow shutdown only if single command FAILS
+
+  {0} --run '!findmnt /mnt'
+           * Allow shutdown if nothing mounted at mountpoint
+
+  {0} --run '@some_cmd | some_other_cmd; another_cmd'
+           * Allow shutdown only if last cmd in shell succeeds
+           * When using '@', full shell syntax is supported
+           * e.g.: '|', '&&', '||', ';', '>', '>>', '<', etc
+
+  {0} --run '!@lsof -i:ssh | grep -q ESTABLISHED'
+           * Allow shutdown only if shell commands FAIL
+           * In this example, only if there are no established ssh connections
+
+""".format(prog)
+
+
 def parse_args():
     """Parse argv into usable input."""
     # Setup argument parser
-    prog = 'rguard'
     description = "Block systemd-initiated shutdown until configurable condition checks pass"
     version = "{} v{} last mod {}".format(prog, vers['version'], vers['date'])
-    epilog = "Version info:\n  {}\n  See <http://github.com/ryran/reboot-guard> to report bugs or RFEs".format(version)
+    epilog = (
+        "{0}"
+        "VERSION:\n"
+        "  {1}\n"
+        "  See <http://github.com/ryran/reboot-guard> to report bugs or RFEs").format(helpExamples, version)
     fmt = lambda prog: CustomFormatter(prog)
     p = argparse.ArgumentParser(
         prog=prog,
@@ -350,7 +389,7 @@ def parse_args():
         help="Remove reboot-guard (if present) and immediately exit")
     g1 = p.add_argument_group(
         'CONFIGURE CONDITIONS',
-        description="Establish what condition checks must pass to allow shutdown. Each option may\nbe specified multiple times.")
+        description="Establish what condition checks must pass to allow shutdown.\nEach option may be specified multiple times.")
     g1.add_argument(
         '-f', '--forbid-file', action='append', metavar='FILE',
         help="Prevent shutdown while FILE exists")
@@ -370,7 +409,7 @@ def parse_args():
         '-r', '--run', action='append', metavar='COMMAND',
         help="Prevent shutdown while execution of COMMAND fails; prefix COMMAND with '!' to prevent shutdown while execution succeeds (MORE: Prefix COMMAND with '@' to execute it as a shell command, e.g., to use pipes '|' or other logic; examples: '@cmd|cmd' or '!@cmd|cmd')")
     g2 = p.add_argument_group(
-        'OPTIONS',
+        'GENERAL OPTIONS',
         description="")
     g2.add_argument(
         '-h', '--help', dest='showHelp', action='store_true',
