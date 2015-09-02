@@ -114,8 +114,8 @@ SET AND QUIT:
   -0, --remove-guard    Remove reboot-guard (if present) and immediately exit
 
 CONFIGURE CONDITIONS:
-  Establish what condition checks must pass to allow shutdown. Each option may
-  be specified multiple times.
+  Establish what condition checks must pass to allow shutdown.
+  Each option may be specified multiple times.
 
   -f, --forbid-file FILE
                         Prevent shutdown while FILE exists
@@ -132,7 +132,7 @@ CONFIGURE CONDITIONS:
                         execute it as a shell command, e.g., to use pipes '|'
                         or other logic; examples: '@cmd|cmd' or '!@cmd|cmd')
 
-OPTIONS:
+GENERAL OPTIONS:
 
   -h, --help            Show this help message and exit
   -i, --interval SEC    Modify the sleep interval between condition checks
@@ -147,4 +147,36 @@ OPTIONS:
                         warning)
   -t, --timestamps      Enable timestamps in message output (not necessary if
                         running as systemd service)
+
+EXAMPLES:
+  As mentioned above, all of the condition-checking options can be used
+  multiple times. All specified checks must pass to allow shutdown.
+
+  rguard --forbid-file /shutdown/prevented/if/this/file/exists
+
+  rguard --require-file /shutdown/prevented/until/this/file/exists
+
+  rguard --cmd some-cmd-name-which-when-running-prevents-shutdown
+           * e.g., 'bash' or 'firefox'
+
+  rguard --args 'syndaemon -i 1.0 -t -K -R'
+           * Prevent shutdown if this exact cmd + args are found running
+
+  rguard --run 'ping -c2 -w1 -W1 10.0.0.1'
+           * Allow shutdown only if single command (ping in this case) succeeds
+
+  rguard --run '!ping -c2 -w1 -W1 10.0.0.1'
+           * Allow shutdown only if single command FAILS
+
+  rguard --run '!findmnt /mnt'
+           * Allow shutdown if nothing mounted at mountpoint
+
+  rguard --run '@some_cmd | some_other_cmd; another_cmd'
+           * Allow shutdown only if last cmd in shell succeeds
+           * When using '@', full shell syntax is supported
+           * e.g.: '|', '&&', '||', ';', '>', '>>', '<', etc
+
+  rguard --run '!@lsof -i:ssh | grep -q ESTABLISHED'
+           * Allow shutdown only if shell commands FAIL
+           * In this example, only if there are no established ssh connections
 ```
