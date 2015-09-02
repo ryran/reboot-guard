@@ -89,7 +89,7 @@ Block systemd-initiated poweroff/reboot/halt until configurable condition checks
 ### Instructions
 
 1. Install the rpm
-    - `yum install http://people.redhat.com/rsawhill/rpms/reboot-guard-0.2.2-1.noarch.rpm`
+    - `yum install http://people.redhat.com/rsawhill/rpms/latest-rsawaroha-release.rpm`
     - `yum install reboot-guard`
 1. Play with the options until you get them how you want them (see help page: `rguard --help`)
 1. Copy `/usr/lib/systemd/system/rguard.service` to `/etc/systemd/system` and modify set an `ExecStart=` directive
