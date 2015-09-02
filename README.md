@@ -88,10 +88,11 @@ Block systemd-initiated poweroff/reboot/halt until configurable condition checks
 
 ### Instructions
 
-1. Save `rguard` to `/usr/sbin/`
-1. See help page and examples in `rguard.service`
-1. Play with the options until you get them how you want them
-1. Modify `rguard.service` with your options and save it to `/etc/systemd/system/`
+1. Install the rpm
+    - `yum install http://people.redhat.com/rsawhill/rpms/reboot-guard-0.2.2-1.noarch.rpm`
+    - `yum install reboot-guard`
+1. Play with the options until you get them how you want them (see help page: `rguard --help`)
+1. Copy `/usr/lib/systemd/system/rguard.service` to `/etc/systemd/system` and modify set an `ExecStart=` directive
 1. Run: `systemctl daemon-reload; systemctl enable rguard; systemctl start rguard`
 1. Check `systemctl status rguard -n50` or use `journalctl -fu rguard` to keep an eye on logs (turn up the `--loglevel` if necesary)
 1. Tweak `rguard.service` as required, and then re-run `systemctl daemon-reload; systemctl restart rguard`
