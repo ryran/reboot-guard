@@ -82,7 +82,7 @@ Block systemd-initiated poweroff/reboot/halt until configurable condition checks
     [root]# fg
     rguard --interval 15 --unit atd --require-file /run/.require
     ^C
-    WARNING: Gracefully exiting due to receipt of SIG 2
+    WARNING: Gracefully exiting due to receipt of signal 2
     ```
 
 
