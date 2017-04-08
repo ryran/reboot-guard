@@ -2,6 +2,11 @@
 Description=Reboot Guard
 
 [Service]
+# With the following default example, shutdown will ALWAYS be blocked
+# This is because the "false" command will never succeed
+# In this case, shutdown can only be unblocked by manually stopping/killing rguard.service
+ExecStart=/usr/sbin/rguard --run false --interval 86400
+#
 # NOTE: The following ExecStart lines are EXAMPLES only; modify to suit your needs
 #       There should be only ONE uncommented ExecStart line
 #

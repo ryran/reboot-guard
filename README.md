@@ -25,7 +25,6 @@ Block systemd-initiated poweroff/reboot/halt until configurable condition checks
     WARNING: ☹  Blocked poweroff.target
     WARNING: ☹  Blocked reboot.target
     WARNING: ☹  Blocked halt.target
-    WARNING: Exiting due to -1 or -0 option
     [root]# 
     ```
 
@@ -50,7 +49,6 @@ Block systemd-initiated poweroff/reboot/halt until configurable condition checks
     WARNING: ☻  Unblocked poweroff.target
     WARNING: ☻  Unblocked reboot.target
     WARNING: ☻  Unblocked halt.target
-    WARNING: Exiting due to -1 or -0 option
     [root]# 
     ```
 
@@ -86,14 +84,15 @@ Block systemd-initiated poweroff/reboot/halt until configurable condition checks
     ```
 
 
-### Instructions
+### Instructions for daemon service
 
 1. Install the rpm
     - `yum install http://people.redhat.com/rsawhill/rpms/latest-rsawaroha-release.rpm`
     - `yum install reboot-guard`
+1. If you want the service to always block reboot/shutdown, requiring the service to be manually stopped or killed, simply run `systemctl daemon-reload; systemctl enable rguard --now` and you are done; otherwise, continue to next step
 1. Play with the options until you get them how you want them (see help page: `rguard --help`)
-1. Copy `/usr/lib/systemd/system/rguard.service` to `/etc/systemd/system` and modify set an `ExecStart=` directive
-1. Run: `systemctl daemon-reload; systemctl enable rguard; systemctl start rguard`
+1. Copy `/usr/lib/systemd/system/rguard.service` to `/etc/systemd/system` and set the `ExecStart=` directive to your liking
+1. Run: `systemctl daemon-reload; systemctl enable rguard --now`
 1. Check `systemctl status rguard -n50` or use `journalctl -fu rguard` to keep an eye on logs (turn up the `--loglevel` if necesary)
 1. Tweak `rguard.service` as required, and then re-run `systemctl daemon-reload; systemctl restart rguard`
 1. Give feedback by posting to the [Issue Tracker](https://github.com/ryran/reboot-guard/issues)
