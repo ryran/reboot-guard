@@ -86,9 +86,9 @@ Block systemd-initiated poweroff/reboot/halt until configurable condition checks
 
 ### Instructions for daemon service
 
-1. Install the rpm
-    - `yum install http://people.redhat.com/rsawhill/rpms/latest-rsawaroha-release.rpm`
-    - `yum install reboot-guard`
+1. Install the latest rpm from [Releases](https://github.com/ryran/reboot-guard/releases) or setup yum repo:
+    - `yum/dnf install http://people.redhat.com/rsawhill/rpms/latest-rsawaroha-release.rpm`
+    - `yum/dnf install reboot-guard`
 1. If you want the service to always block reboot/shutdown, requiring the service to be manually stopped or killed, simply run `systemctl daemon-reload; systemctl enable rguard --now` and you are done; otherwise, continue to next step
 1. Play with the options until you get them how you want them (see help page: `rguard --help`)
 1. Copy `/usr/lib/systemd/system/rguard.service` to `/etc/systemd/system` and set the `ExecStart=` directive to your liking
