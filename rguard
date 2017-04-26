@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 # -*- coding: utf-8 -*-
 # Copyright 2015, 2017 Ryan Sawhill Aroha <rsaw@redhat.com>
 #
@@ -26,8 +26,8 @@ from stat import S_IWRITE
 
 prog = 'rguard'
 vers = {}
-vers['version'] = '1.0.0'
-vers['date'] = '2017/04/08'
+vers['version'] = '1.0.1'
+vers['date'] = '2017/04/26'
 
 
 def ret(returnCode):
